@@ -74,5 +74,12 @@ public abstract class PersonalMedico implements AccionesEquipoMedico{
     public void AsistirOperacion(){
         
     }
+
+    @Override
+    public String toString() {
+        return String.format("Identificacion: %d | Nombre: %s | Cargo: %s | Sexo: %s\n", getIdentificacion(), getNombre(), getCargoEnHospital(), getSexo());
+    }
+    
+    
     
 }

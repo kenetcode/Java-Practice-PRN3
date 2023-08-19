@@ -20,8 +20,14 @@ public class Medico extends PersonalMedico {
         setEspecialidad(especialidad);
     }
 
-    public boolean isEsExtranjero() {
-        return esExtranjero;
+    public String getEsExtranjero() {
+        
+        if(esExtranjero){
+            return "Si";
+        }
+        else{
+            return "No";
+        }
     }
 
     public void setEsExtranjero(boolean esExtranjero) {
@@ -38,6 +44,8 @@ public class Medico extends PersonalMedico {
 
     @Override
     public String toString() {
-        return "";
+        
+        return super.toString() + String.format("Estranjero: %s | Especialidad: %s\n", getEsExtranjero(), getEspecialidad());
     }
+
 }

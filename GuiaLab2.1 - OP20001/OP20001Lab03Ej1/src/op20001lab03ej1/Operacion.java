@@ -3,7 +3,6 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package op20001lab03ej1;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -16,11 +15,15 @@ public class Operacion {
     private List<Medico> medicos;
     private String nombrePaciente;
     private String fecha;
-    
-    public Operacion(){
-        
-    }
 
+    public Operacion(List<Paramedico> paramedicos, List<Medico> medicos, String nombrePaciente, String fecha) {
+        setParamedicos(paramedicos);
+        setMedicos(medicos);
+        setNombrePaciente(nombrePaciente);
+        setFecha(fecha);
+    }
+    
+    
     public List<Paramedico> getParamedicos() {
         return paramedicos;
     }
@@ -58,4 +61,24 @@ public class Operacion {
         return true;
     }
     
+    public String imprimirListas(List<Paramedico> paramedicos, List<Medico> medicos){
+        
+        for(Paramedico paramedico : paramedicos){
+            System.out.println(paramedico.toString());
+        }
+        
+        for(Medico medico : medicos){
+            System.out.println(medico.toString());
+        }
+        
+        return "\n";
+    }
+
+    @Override
+    public String toString() {
+        
+        
+        return String.format("%sNombre del paciente: %s | Fecha de la Operacion: %s\n", imprimirListas(paramedicos, medicos), getNombrePaciente(), getFecha());
+    }
+
 }

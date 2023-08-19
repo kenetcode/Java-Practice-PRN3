@@ -36,4 +36,9 @@ public class Paramedico extends PersonalMedico {
         this.turno = turno;
     }
 
+    @Override
+    public String toString() {
+        return super.toString() + String.format("Años de experiencia: %d | Turno: %s\n", getAñosDeExperiencia(), getTurno());
+    }
+
 }
