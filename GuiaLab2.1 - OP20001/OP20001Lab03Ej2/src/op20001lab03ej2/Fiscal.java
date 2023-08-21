@@ -11,19 +11,20 @@ import java.util.List;
  * @author kenetcode
  */
 public class Fiscal {
-    private NomEmpleadoJusticia nombreFiscal;
+
+    private String nombreFiscal;
     private int casosGanados;
     private List<Audiencia> audiencias;
-    
-    public Fiscal(){
-        
+
+    public Fiscal() {
+
     }
 
-    public NomEmpleadoJusticia getNombreFiscal() {
+    public String getNombreFiscal() {
         return nombreFiscal;
     }
 
-    public void setNombreFiscal(NomEmpleadoJusticia nombreFiscal) {
+    public void setNombreFiscal(String nombreFiscal) {
         this.nombreFiscal = nombreFiscal;
     }
 
@@ -43,4 +44,16 @@ public class Fiscal {
         this.audiencias = audiencias;
     }
     
+    public void mostrarAudiencias(){
+        System.out.println("\nLista de Audiencias: \n");
+        for (Audiencia audi : getAudiencias()) {
+            System.out.println(audi.toString());
+        }
+    }
+
+    @Override
+    public String toString() {
+        return String.format("FISCAL \nNombre: %s \nCasos Ganados: %d", getNombreFiscal(), getCasosGanados());
+    }
+
 }

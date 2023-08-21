@@ -9,19 +9,19 @@ package op20001lab03ej2;
  * @author kenetcode
  */
 public class Audiencia {
-    private Fecha fechaAudienciaFecha;
+    private String fechaAudiencia;
     private String nombreCaso;
     
     public Audiencia(){
         
     }
 
-    public Fecha getFechaAudienciaFecha() {
-        return fechaAudienciaFecha;
+    public String getFechaAudiencia() {
+        return fechaAudiencia;
     }
 
-    public void setFechaAudienciaFecha(Fecha fechaAudienciaFecha) {
-        this.fechaAudienciaFecha = fechaAudienciaFecha;
+    public void setFechaAudiencia(String fechaAudienciaFecha) {
+        this.fechaAudiencia = fechaAudienciaFecha;
     }
 
     public String getNombreCaso() {
@@ -31,6 +31,11 @@ public class Audiencia {
     public void setNombreCaso(String nombreCaso) {
         this.nombreCaso = nombreCaso;
     }
-    
-    
+   
+
+    @Override
+    public String toString() {
+        return String.format("Nombre del caso: %s | Fecha de la audiencia: %s\n", getNombreCaso(), getFechaAudiencia());
+    }
+
 }

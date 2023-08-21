@@ -11,21 +11,22 @@ import java.util.List;
  * @author kenetcode
  */
 public class AbogadoDefensor {
-    private NomEmpleadoJusticia nombreAbogado;
+
+    private String nombreAbogado;
     private String nombreBuffete;
     private double honorariosPorCaso;
     private boolean trabajaParaElEstado;
     private List<Audiencia> audiencias;
-    
-    public AbogadoDefensor(){
-        
+
+    public AbogadoDefensor() {
+
     }
 
-    public NomEmpleadoJusticia getNombreAbogado() {
+    public String getNombreAbogado() {
         return nombreAbogado;
     }
 
-    public void setNombreAbogado(NomEmpleadoJusticia nombreAbogado) {
+    public void setNombreAbogado(String nombreAbogado) {
         this.nombreAbogado = nombreAbogado;
     }
 
@@ -45,8 +46,13 @@ public class AbogadoDefensor {
         this.honorariosPorCaso = honorariosPorCaso;
     }
 
-    public boolean isTrabajaParaElEstado() {
-        return trabajaParaElEstado;
+    public String getTrabajaParaElEstado() {
+        if (trabajaParaElEstado) {
+            return "SI";
+        } else {
+            return "NO";
+        }
+
     }
 
     public void setTrabajaParaElEstado(boolean trabajaParaElEstado) {
@@ -59,6 +65,18 @@ public class AbogadoDefensor {
 
     public void setAudiencias(List<Audiencia> audiencias) {
         this.audiencias = audiencias;
+    }
+    
+    public void mostrarAudiencias(){
+        System.out.println("\nLista de Audiencias: \n");
+        for(Audiencia audi : audiencias){
+            System.out.println(audi);
+        }
+    }
+
+    @Override
+    public String toString() {
+        return String.format("\nABOGADO \nNombre: %s \nBuffete: %s \nHonorarios: $%.2f \nTrabaja para el Estado: %s", getNombreAbogado(), getNombreBuffete(), getHonorariosPorCaso(), getTrabajaParaElEstado());
     }
 
 }
