@@ -4,17 +4,103 @@
  */
 package op20001lab06ejem01;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.swing.JOptionPane;
+import java.sql.Statement;
+import java.sql.ResultSet;
+
+import javax.swing.table.TableColumnModel;
+import javax.swing.table.DefaultTableColumnModel;
+import javax.swing.table.TableColumn;
+
 /**
  *
  * @author kenetcode
  */
 public class MantenimientoProductos extends javax.swing.JFrame {
 
+    public ProductoTableModel productoTModel = new ProductoTableModel();
+
+    private Connection conexion;
+
     /**
      * Creates new form MantenimientoProductos
      */
     public MantenimientoProductos() {
         initComponents();
+        inicializarColumnas();
+        conectar();
+        consultaInicial();
+    }
+
+    private void conectar() {
+        try {
+            conexion = DriverManager.getConnection("jdbc:postgresql://localhost:5432/op20001", "op20001", "op20001");
+        } catch (SQLException ex) {
+            Logger.getLogger(MantenimientoProductos.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private void consultaInicial() {
+        try {
+            
+            String sentenciaSql = "SELECT * FROM producto";
+            Statement statement = this.conexion.createStatement();
+            ResultSet resultado = statement.executeQuery(sentenciaSql);
+            
+            while (resultado.next()) {
+                
+                Producto producto = new Producto();
+                producto.codigo = resultado.getString("idproducto");
+                producto.nombre = resultado.getString("nomproducto");
+                producto.cantidadExistencia = resultado.getDouble("exisproducto");
+                producto.precioUnitario = resultado.getDouble("precproducto");
+                this.productoTModel.productos.add(producto);
+                
+            }
+
+            tablaProductos.repaint();
+
+        } catch (SQLException ex) {
+            
+            JOptionPane.showMessageDialog(this, "Error al recuperar los productos de la base de datos");
+            ex.printStackTrace();
+        }
+    }
+
+    private void inicializarColumnas() {
+
+        TableColumnModel tColumnModel = new DefaultTableColumnModel();
+
+        for (int i = 0; i < 4; i++) {
+
+            TableColumn col = new TableColumn(i);
+
+            switch (i) {
+                case 0:
+                    col.setHeaderValue("Código");
+                    break;
+                case 1:
+                    col.setHeaderValue("Nombre");
+                    break;
+                case 2:
+                    col.setHeaderValue("Existencia");
+                    break;
+                case 3:
+                    col.setHeaderValue("Precio");
+                    break;
+            }
+
+            tColumnModel.addColumn(col);
+        }
+
+        tablaProductos.setColumnModel(tColumnModel);
+
     }
 
     /**
@@ -164,17 +250,7 @@ public class MantenimientoProductos extends javax.swing.JFrame {
                 .addContainerGap(15, Short.MAX_VALUE))
         );
 
-        tablaProductos.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
-            },
-            new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
-            }
-        ));
+        tablaProductos.setModel(productoTModel);
         jScrollPane1.setViewportView(tablaProductos);
 
         lblTitulo.setText("Criterios de busqueda");
@@ -242,16 +318,24 @@ public class MantenimientoProductos extends javax.swing.JFrame {
                 if ("Nimbus".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
+
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(MantenimientoProductos.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(MantenimientoProductos.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(MantenimientoProductos.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(MantenimientoProductos.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(MantenimientoProductos.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(MantenimientoProductos.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(MantenimientoProductos.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(MantenimientoProductos.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
