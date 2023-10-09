@@ -18,15 +18,24 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableColumn;
 
+import java.sql.PreparedStatement;
+import java.util.List;
+import java.util.ArrayList;
+
 /**
  *
  * @author kenetcode
  */
+
 public class MantenimientoProductos extends javax.swing.JFrame {
 
     public ProductoTableModel productoTModel = new ProductoTableModel();
 
     private Connection conexion;
+
+    //variables usadas en los metodos buscar y guardar registro
+    private boolean guardar;
+    private Producto productoActual;
 
     /**
      * Creates new form MantenimientoProductos
@@ -47,27 +56,28 @@ public class MantenimientoProductos extends javax.swing.JFrame {
     }
 
     private void consultaInicial() {
+        
         try {
-            
+
             String sentenciaSql = "SELECT * FROM producto";
             Statement statement = this.conexion.createStatement();
             ResultSet resultado = statement.executeQuery(sentenciaSql);
-            
+
             while (resultado.next()) {
-                
+
                 Producto producto = new Producto();
                 producto.codigo = resultado.getString("idproducto");
                 producto.nombre = resultado.getString("nomproducto");
                 producto.cantidadExistencia = resultado.getDouble("exisproducto");
                 producto.precioUnitario = resultado.getDouble("precproducto");
                 this.productoTModel.productos.add(producto);
-                
+
             }
 
             tablaProductos.repaint();
 
         } catch (SQLException ex) {
-            
+
             JOptionPane.showMessageDialog(this, "Error al recuperar los productos de la base de datos");
             ex.printStackTrace();
         }
@@ -136,6 +146,11 @@ public class MantenimientoProductos extends javax.swing.JFrame {
         btnElimina = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         jLabel4.setText("Codigo: ");
 
@@ -146,8 +161,18 @@ public class MantenimientoProductos extends javax.swing.JFrame {
         jLabel7.setText("Precio Unitario:");
 
         btnGuardar.setText("Guardar");
+        btnGuardar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnGuardarActionPerformed(evt);
+            }
+        });
 
         btnNuevo.setText("Nuevo");
+        btnNuevo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnNuevoActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -203,12 +228,6 @@ public class MantenimientoProductos extends javax.swing.JFrame {
 
         jLabel2.setText("Nombre:");
 
-        txtBusqCodigo.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtBusqCodigoActionPerformed(evt);
-            }
-        });
-
         btnBuscar.setText("Buscar");
         btnBuscar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -251,6 +270,11 @@ public class MantenimientoProductos extends javax.swing.JFrame {
         );
 
         tablaProductos.setModel(productoTModel);
+        tablaProductos.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tablaProductosMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(tablaProductos);
 
         lblTitulo.setText("Criterios de busqueda");
@@ -258,6 +282,11 @@ public class MantenimientoProductos extends javax.swing.JFrame {
         jLabel3.setText("Mantenimiento");
 
         btnElimina.setText("Eliminar Seleccionados");
+        btnElimina.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEliminaActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -297,12 +326,229 @@ public class MantenimientoProductos extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
-        // TODO add your handling code here:
+
+        productoTModel.productos.clear();
+
+        try {
+
+            PreparedStatement statement = null;
+            String codigo = txtBusqCodigo.getText().toString();
+            String nombre = txtBusqNombre.getText().toString();
+            String sentenciaSql = "SELECT * FROM producto ";
+
+            if (!codigo.isEmpty()) {
+
+                if (!nombre.isEmpty()) {
+
+                    sentenciaSql += "WHERE idproducto ILIKE ? OR nomproducto ILIKE ? ";
+                    statement = this.conexion.prepareStatement(sentenciaSql);
+                    statement.setString(1, codigo + "%");
+                    statement.setString(2, "%" + nombre + "%");
+
+                } else {
+
+                    sentenciaSql += "WHERE idproducto ILIKE ? ";
+                    statement = this.conexion.prepareStatement(sentenciaSql);
+                    statement.setString(1, codigo + "%");
+                }
+
+            } else {
+
+                if (!nombre.isEmpty()) {
+
+                    sentenciaSql += "WHERE nomproducto ILIKE ? ";
+                    statement = this.conexion.prepareStatement(sentenciaSql);
+                    statement.setString(1, "%" + nombre + "%");
+
+                } else {
+                    statement = this.conexion.prepareStatement(sentenciaSql);
+                }
+            }
+
+            ResultSet resultado = statement.executeQuery();
+
+            while (resultado.next()) {
+
+                Producto producto = new Producto();
+                producto.codigo = resultado.getString("idproducto");
+                producto.nombre = resultado.getString("nomproducto");
+                producto.precioUnitario = resultado.getDouble("precproducto");
+                producto.cantidadExistencia = resultado.getDouble("exisproducto");
+                productoTModel.productos.add(producto);
+
+            }
+
+            tablaProductos.repaint();
+
+        } catch (SQLException ex) {
+
+            JOptionPane.showMessageDialog(this, "Error al recuperar los productos de la base de datos");
+            ex.printStackTrace();
+            tablaProductos.repaint();
+
+        }
     }//GEN-LAST:event_btnBuscarActionPerformed
 
-    private void txtBusqCodigoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtBusqCodigoActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtBusqCodigoActionPerformed
+    private void btnEliminaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminaActionPerformed
+
+        //Indices de las filas seleccionadas
+        int[] indices = tablaProductos.getSelectedRows();
+        List<Producto> aEliminar = new ArrayList<Producto>();
+
+        for (int i : indices) {
+
+            Producto producto = productoTModel.productos.get(i);
+
+            String sentenciaSql = "DELETE FROM producto WHERE idproducto = ?";
+
+            aEliminar.add(producto);
+
+            try {
+
+                PreparedStatement prepStat = conexion.prepareStatement(sentenciaSql);
+                prepStat.setString(1, producto.codigo);
+                prepStat.executeUpdate();
+                JOptionPane.showMessageDialog(this, "Elimino correctamente " + producto.codigo);
+                UpdateJTable();
+
+            } catch (SQLException ex) {
+
+                Logger.getLogger(MantenimientoProductos.class.getName()).log(Level.SEVERE, null, ex);
+
+            }
+
+            tablaProductos.repaint();
+
+        }
+
+    }//GEN-LAST:event_btnEliminaActionPerformed
+
+    private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
+
+        try {
+
+            if (guardar) {
+                Producto producto = new Producto();
+                producto.codigo = txtCodigo.getText();
+                producto.nombre = txtNombre.getText();
+                producto.cantidadExistencia = Double.parseDouble(txtCantidadExistencia.getText());
+                producto.precioUnitario = Double.parseDouble(txtPrecioUnitario.getText());
+
+                String sentenciaSql = "INSERT INTO producto(idproducto, nomproducto, precproducto,exisproducto) VALUES " + "(?,?,?,?)";
+
+                PreparedStatement preparedStatement = conexion.prepareStatement(sentenciaSql);
+                preparedStatement.setString(1, producto.codigo);
+                preparedStatement.setString(2, producto.nombre);
+                preparedStatement.setDouble(3, producto.precioUnitario);
+                preparedStatement.setDouble(4, producto.cantidadExistencia);
+                preparedStatement.execute();
+
+                productoTModel.productos.add(producto);
+
+            } else {
+
+                String sentenciaSql = "UPDATE producto SET nomproducto = ?, exisproducto = ?, precproducto = ? WHERE idproducto = ? ";
+                PreparedStatement preparedStatement = conexion.prepareStatement(sentenciaSql);
+
+                preparedStatement.setString(1, txtNombre.getText());
+                preparedStatement.setDouble(2, Double.valueOf(txtCantidadExistencia.getText()));
+                preparedStatement.setDouble(3, Double.parseDouble(txtPrecioUnitario.getText()));
+                preparedStatement.setString(4, txtCodigo.getText());
+                preparedStatement.executeUpdate();
+                productoActual.cantidadExistencia = Double.parseDouble(txtCantidadExistencia.getText());
+                productoActual.codigo = txtCodigo.getText();
+                productoActual.nombre = txtNombre.getText();
+
+                productoActual.precioUnitario = Double.parseDouble(txtPrecioUnitario.getText());
+
+            }
+
+            tablaProductos.repaint();
+
+        } catch (SQLException ex) {
+
+            JOptionPane.showMessageDialog(this, "Error al guardar el producto");
+            ex.printStackTrace();
+
+        }
+
+    }//GEN-LAST:event_btnGuardarActionPerformed
+
+    private void tablaProductosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tablaProductosMouseClicked
+
+        int clics = evt.getClickCount();
+        int row = tablaProductos.rowAtPoint(evt.getPoint());
+
+        if (clics == 2) {
+            Producto p = productoTModel.productos.get(row);
+            productoActual = p;
+            txtCodigo.setText(p.codigo);
+            txtNombre.setText(p.nombre);
+            txtCantidadExistencia.setText(String.valueOf(p.cantidadExistencia.doubleValue()));
+            txtPrecioUnitario.setText(String.valueOf(p.precioUnitario.doubleValue()));
+            guardar = false;
+        }
+
+    }//GEN-LAST:event_tablaProductosMouseClicked
+
+    private void btnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoActionPerformed
+
+        txtCodigo.setText("");
+        txtNombre.setText("");
+        txtCantidadExistencia.setText("");
+        txtPrecioUnitario.setText("");
+
+        guardar = true;
+
+        productoActual = null;
+
+    }//GEN-LAST:event_btnNuevoActionPerformed
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+
+        try {
+
+            conexion.close();
+
+        } catch (SQLException ex) {
+
+            JOptionPane.showMessageDialog(this, "Ocurrió un error al cerrar la conexión a la base de datos");
+
+        }
+
+        JOptionPane.showMessageDialog(this, "La conexión a la base de datos ha sido cerrada");
+    }//GEN-LAST:event_formWindowClosing
+
+    private void UpdateJTable() {
+
+        productoTModel.productos.clear();
+
+        try {
+
+            PreparedStatement statement = null;
+            String sentenciaSql = "SELECT * FROM producto ";
+            statement = this.conexion.prepareStatement(sentenciaSql);
+            ResultSet resultado = statement.executeQuery();
+
+            while (resultado.next()) {
+                Producto producto = new Producto();
+                producto.codigo = resultado.getString("idproducto");
+                producto.nombre = resultado.getString("nomproducto");
+                producto.precioUnitario = resultado.getDouble("precproducto");
+                producto.cantidadExistencia = resultado.getDouble("exisproducto");
+                productoTModel.productos.add(producto);
+            }
+
+            tablaProductos.repaint();
+
+        } catch (SQLException ex) {
+
+            JOptionPane.showMessageDialog(this, "Error al recuperar los productos de la base de datos");
+            ex.printStackTrace();
+
+        }
+
+    }
 
     /**
      * @param args the command line arguments
